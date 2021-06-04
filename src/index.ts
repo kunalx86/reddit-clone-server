@@ -17,7 +17,7 @@ import { EntityManager } from '@mikro-orm/postgresql';
 (async () => {
 
   const orm = await MikroORM.init(mikroConfig);
-  orm.getMigrator().up();
+  await orm.getMigrator().up();
   const app = express();
   const { BAD_REQUEST } = StatusCodes;
 

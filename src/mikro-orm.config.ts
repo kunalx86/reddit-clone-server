@@ -4,7 +4,7 @@ import { __prod__ } from "@shared/constants";
 import path from "path";
 
 export default {
-  dbName: 'reddit-clone',
+  dbName: 'redditclone',
   type: 'postgresql',
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
