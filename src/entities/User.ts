@@ -1,3 +1,4 @@
+import argon from "argon2";
 import { Collection, Entity, OneToMany, OneToOne, Property } from "@mikro-orm/core";
 import { Base } from "./Base";
 import { FollowUser } from "./FollowUser";
@@ -19,7 +20,7 @@ export class User extends Base {
   email: string;
 
   @Property()
-  hashedPwd: string;
+  hashedPwd!: string;
 
   @OneToOne(() => UserProfile, profile => profile.user, {
     mappedBy: "user",
@@ -27,34 +28,41 @@ export class User extends Base {
   profile!: UserProfile
 
   @OneToMany(() => FollowUser, follow => follow.following)
-  followingUsers!: Collection<FollowUser>;
+  followingUsers = new Collection<FollowUser>(this);
 
-  @OneToMany(() => FollowUser, follow => follow.following)
-  followedByUsers!: Collection<FollowUser>;
+  @OneToMany(() => FollowUser, follow => follow.followedBy)
+  followedByUsers = new Collection<FollowUser>(this);
 
   @OneToMany(() => Post, post => post.author)
-  posts!: Collection<Post>;
+  posts = new Collection<Post>(this);
 
   @OneToMany(() => PostVote, postVote => postVote.user)
-  postVotes!: Collection<PostVote>;
+  postVotes = new Collection<PostVote>(this);
 
   @OneToMany(() => Comment, comment => comment.user)
-  comments!: Collection<Comment>;
+  comments = new Collection<Comment>(this);
 
   @OneToMany(() => CommentVote, commentVote => commentVote.user)
-  commentVotes!: Collection<CommentVote>;
+  commentVotes = new Collection<CommentVote>(this);
 
   @OneToMany(() => Group, group => group.owner)
-  groupsCreated!: Collection<Group>;
+  groupsCreated = new Collection<Group>(this);
 
   @OneToMany(() => FollowGroup, followGroup => followGroup.user)
-  followingGroups!: Collection<FollowGroup>;
+  followingGroups = new Collection<FollowGroup>(this);
 
-  constructor(username: string, email: string, hashedPwd: string) {
+  constructor(username: string, email: string) {
     super();
     this.username = username;
     this.email = email;
-    this.hashedPwd = hashedPwd;
+  }
+
+  async generateHashPassword(password: string) {
+    this.hashedPwd = await argon.hash(password);
+  }
+
+  async verifyPassword(password: string) {
+    return await argon.verify(this.hashedPwd, password);
   }
 
 }

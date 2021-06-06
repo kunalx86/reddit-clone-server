@@ -1,7 +1,8 @@
-import { Cascade, ManyToOne } from "@mikro-orm/core";
+import { Cascade, Entity, ManyToOne } from "@mikro-orm/core";
 import { Base } from "./Base";
 import { User } from "./User";
 
+@Entity()
 export class FollowUser extends Base {
 
   @ManyToOne(() => User, {

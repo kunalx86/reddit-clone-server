@@ -26,7 +26,7 @@ export class Comment extends Base {
     nullable: true,
     cascade: [Cascade.PERSIST],
   })
-  replies!: Collection<Comment>;
+  replies = new Collection<Comment>(this);
 
   @ManyToOne(() => Comment, {
     nullable: true,
@@ -35,7 +35,7 @@ export class Comment extends Base {
   parent!: Comment;
 
   @OneToMany(() => CommentVote, commentVote => commentVote.comment)
-  votes!: Collection<CommentVote>;
+  votes = new Collection<CommentVote>(this);
 
   constructor(comment: string) {
     super();

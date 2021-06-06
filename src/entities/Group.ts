@@ -17,10 +17,10 @@ export class Group extends Base {
   owner!: User;
 
   @OneToMany(() => Post, post => post.group)
-  posts!: Collection<Post>;
+  posts = new Collection<Post>(this);
 
   @OneToMany(() => FollowGroup, followGroup => followGroup.group)
-  followers!: Collection<FollowGroup>;
+  followers = new Collection<FollowGroup>(this);
 
   @OneToOne(() => GroupProfile, groupProfile => groupProfile.group)
   profile!: GroupProfile;

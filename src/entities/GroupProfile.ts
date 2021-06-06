@@ -21,7 +21,7 @@ export class GroupProfile extends Base {
   @OneToMany(() => Rule, rule => rule.group, {
     nullable: true,
   })
-  rules!: Collection<Rule>;
+  rules = new Collection<Rule>(this);
 
   @OneToOne(() => Group, group => group.profile, {
     owner: true,

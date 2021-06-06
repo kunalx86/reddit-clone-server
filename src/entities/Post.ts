@@ -23,10 +23,10 @@ export class Post extends Base {
   media!: Media;
 
   @OneToMany(() => PostVote, postVote => postVote.post)
-  votes!: Collection<PostVote>;
+  votes = new Collection<PostVote>(this);
 
   @OneToMany(() => Comment, comment => comment.post)
-  comments!: Collection<Comment>;
+  comments = new Collection<Comment>(this);
 
   @ManyToOne(() => Group, {
     nullable: true,

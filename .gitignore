@@ -12,6 +12,8 @@ sessions/
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
+reg_users.txt
+
 # Runtime data
 pids
 *.pid

@@ -1,10 +1,12 @@
 import './pre-start'; // Must be the first import
 import logger from '@shared/Logger';
-import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
 
 import express, { NextFunction, Request, Response } from 'express';
+import session from "express-session";
+import redis from "redis";
+import connectRedis from "connect-redis";
 import StatusCodes from 'http-status-codes';
 import 'express-async-errors';
 
@@ -21,13 +23,12 @@ import { EntityManager } from '@mikro-orm/postgresql';
   const app = express();
   const { BAD_REQUEST } = StatusCodes;
 
+  const RedisStore = connectRedis(session);
+  const redisClient = redis.createClient();
+
   // /************************************************************************************
   //  *                              Set basic express settings
   //  ***********************************************************************************/
-
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser());
 
   // Show routes called in console during development
   if (process.env.NODE_ENV === 'development') {
@@ -36,9 +37,30 @@ import { EntityManager } from '@mikro-orm/postgresql';
   
   // Security
   if (process.env.NODE_ENV === 'production') {
+    app.set("trust proxy", 1);
     app.use(helmet());
   }
+
+  app.use(session({
+    name: 'uid',
+    store: new RedisStore({ 
+      client: redisClient,
+      disableTouch: true,
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 30, // approx a month
+      httpOnly: true,
+      sameSite: "lax",
+      secure: __prod__, // Only in Production
+    },
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: false,
+  }))
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
   
+  // To be able to Fork `em` in request controllers
   app.use((req, res, next) => {
     RequestContext.create(orm.em as EntityManager, next);
   })
