@@ -19,7 +19,7 @@ import { EntityManager } from '@mikro-orm/postgresql';
 (async () => {
 
   const orm = await MikroORM.init(mikroConfig);
-  await orm.getMigrator().up();
+  // await orm.getMigrator().up();
   const app = express();
   const { BAD_REQUEST } = StatusCodes;
 
@@ -37,7 +37,7 @@ import { EntityManager } from '@mikro-orm/postgresql';
   
   // Security
   if (process.env.NODE_ENV === 'production') {
-    app.set("trust proxy", 1);
+    // app.set("trust proxy", 1);
     app.use(helmet());
   }
 
@@ -51,7 +51,7 @@ import { EntityManager } from '@mikro-orm/postgresql';
       maxAge: 1000 * 60 * 60 * 24 * 30, // approx a month
       httpOnly: true,
       sameSite: "lax",
-      secure: __prod__, // Only in Production
+      // secure: __prod__, // Only in Production
     },
     secret: process.env.SESSION_SECRET!,
     resave: false,
