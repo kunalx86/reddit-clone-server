@@ -1,5 +1,5 @@
 import argon from "argon2";
-import { Collection, Entity, OneToMany, OneToOne, Property } from "@mikro-orm/core";
+import { Collection, Entity, OneToMany, OneToOne, Property, RequestContext } from "@mikro-orm/core";
 import { Base } from "./Base";
 import { FollowUser } from "./FollowUser";
 import { Post } from "./Post";
@@ -9,6 +9,7 @@ import { UserProfile } from "./UserProfile";
 import { CommentVote } from "./CommentVote";
 import { Group } from "./Group";
 import { FollowGroup } from "./FollowGroup";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 @Entity()
 export class User extends Base {
@@ -19,7 +20,9 @@ export class User extends Base {
   @Property()
   email: string;
 
-  @Property()
+  @Property({
+    hidden: true,
+  })
   hashedPwd!: string;
 
   @OneToOne(() => UserProfile, profile => profile.user, {
@@ -27,10 +30,10 @@ export class User extends Base {
   })
   profile!: UserProfile
 
-  @OneToMany(() => FollowUser, follow => follow.following)
+  @OneToMany(() => FollowUser, follow => follow.followedBy)
   followingUsers = new Collection<FollowUser>(this);
 
-  @OneToMany(() => FollowUser, follow => follow.followedBy)
+  @OneToMany(() => FollowUser, follow => follow.following)
   followedByUsers = new Collection<FollowUser>(this);
 
   @OneToMany(() => Post, post => post.author)
@@ -63,6 +66,13 @@ export class User extends Base {
 
   async verifyPassword(password: string) {
     return await argon.verify(this.hashedPwd, password);
+  }
+
+  static getUser(userId: number) {
+    const em = RequestContext.getEntityManager() as EntityManager;
+    return em.findOneOrFail(User, {
+      id: userId
+    });
   }
 
 }

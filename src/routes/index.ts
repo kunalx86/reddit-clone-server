@@ -1,9 +1,10 @@
 import { User } from "@entities/User";
 import { verifyAuth } from "@middlewares/verifyAuth";
 import { RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/knex";
+import { EntityManager } from "@mikro-orm/postgresql";
 import { Request, Response, Router } from "express";
 import authRouter from "./authRouter";
+import followRouter from "./followRouter";
 
 // Export the base-router
 const baseRouter = Router();
@@ -24,5 +25,6 @@ baseRouter.get('/whoami', verifyAuth, async (req: Request, res: Response) => {
 })
 
 baseRouter.use("/auth", authRouter);
+baseRouter.use("/users", followRouter);
 
 export default baseRouter;
