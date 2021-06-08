@@ -13,7 +13,7 @@ export const registerController = async (req: IUserRegisterRequest, res: Respons
     await registerValidator(req.body);
   } catch(err) {
     const errors = errorVerifier(err);
-    res.status(400).send(errors);
+    return res.status(400).send({errors});
   }
   const usernameUser = await em.findOne(User, {
     username: req.body.username

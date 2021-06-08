@@ -18,3 +18,12 @@ export interface IUserLogin {
 export interface IUserLoginRequest extends Request {
   body:IUserLogin;
 }
+
+export interface IGroup {
+  name: string;
+  bio: string;
+}
+
+export interface IGroupRequest extends Request {
+  body: IGroup;
+}
