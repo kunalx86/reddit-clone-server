@@ -24,7 +24,8 @@ export class UserProfile extends Base {
 
   @OneToOne(() => User, user => user.profile, {
     owner: true,
-    cascade: [Cascade.REMOVE]
+    cascade: [Cascade.REMOVE],
+    hidden: true,
   })
   user!: User;
 

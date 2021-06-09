@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { User } from "@entities/User";
 import { FollowUser } from "@entities/FollowUser";
-import { RequestContext } from "@mikro-orm/core";
+import { LoadStrategy, RequestContext } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/postgresql";
 
 export const followController = async (req: Request, res: Response) => {
@@ -33,22 +33,32 @@ export const followController = async (req: Request, res: Response) => {
 
 export const getFollowersController = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
-  const followers = await em.find(User, {
+  const resultSet = await em.find(User, {
     id: req.session.userId,
-  }, ['followedByUsers', 'followedByUsers.followedBy', 'followedByUsers.followedBy.profile']);
+  }, {
+    populate: ['followedByUsers', 'followedByUsers.followedBy', 'followedByUsers.followedBy.profile'],
+    strategy: LoadStrategy.JOINED
+  });
 
+  const [followers] = resultSet.map(follower => follower.followedByUsers);
+  
   res.status(200).send({
-    data: followers.map(follower => follower.followedByUsers)
+    data: { followers: followers.toArray().map(user => user.followedBy) }
   });
 }
 
 export const getFollowingController = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
-  const followers = await em.find(User, {
+  const resultSet = await em.find(User, {
     id: req.session.userId,
-  }, ['followingUsers', 'followingUsers.following', 'followingUsers.following.profile']);
+  }, {
+    populate: ['followingUsers', 'followingUsers.following', 'followingUsers.following.profile'],
+    strategy: LoadStrategy.JOINED,
+  });
+
+  const [following] = resultSet.map(follower => follower.followingUsers);
 
   res.status(200).send({
-    data: followers.map(follower => follower.followingUsers)
-  })
+    data: { following: following.toArray().map(user => user.following) }
+  });
 }

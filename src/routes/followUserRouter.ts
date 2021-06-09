@@ -1,4 +1,4 @@
-import { followController, getFollowersController, getFollowingController } from "@controllers/followController";
+import { followController, getFollowersController, getFollowingController } from "@controllers/followUserController";
 import { verifyAuth } from "@middlewares/verifyAuth";
 import express from "express";
 

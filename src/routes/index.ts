@@ -1,10 +1,10 @@
 import { User } from "@entities/User";
 import { verifyAuth } from "@middlewares/verifyAuth";
-import { RequestContext } from "@mikro-orm/core";
+import { LoadStrategy, RequestContext } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/postgresql";
 import { Request, Response, Router } from "express";
 import authRouter from "./authRouter";
-import followRouter from "./followRouter";
+import followRouter from "./followUserRouter";
 import groupRouter from "./groupRouter";
 import followGroupRouter from "./followGroupRouter";
 
@@ -18,9 +18,12 @@ baseRouter.get('/', (_, res) => {
 
 baseRouter.get('/whoami', verifyAuth, async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
-  const user = await em.createQueryBuilder(User).select(["username", "id"]).where({
-    id: req.session.userId
-  }).getSingleResult();
+  const user = await em.findOne(User, {
+    id: req.session.userId || -1,
+  }, {
+    populate: ['profile'],
+    strategy: LoadStrategy.JOINED,
+  });
   res.status(200).send({
     data: user,
   });

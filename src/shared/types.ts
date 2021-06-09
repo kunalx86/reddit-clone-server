@@ -4,6 +4,8 @@ export interface IUser {
   username: string;
   email: string;
   password: string;
+  fullName?: string;
+  bio?: string;
 }
 
 export interface IUserRegisterRequest extends Request {

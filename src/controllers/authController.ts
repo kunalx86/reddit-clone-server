@@ -30,10 +30,13 @@ export const registerController = async (req: IUserRegisterRequest, res: Respons
   if (emailUser) {
     throw new Error("Email already exists");
   }
-
   const user = new User(req.body.username, req.body.email)
+  const userProfile = new UserProfile("default_profile_pic", "default_bg_pic");
+  userProfile.fullName = req.body.fullName || "";
+  userProfile.bio = req.body.bio || "";
   // user.generateHashPassword(req.body.password);
   user.hashedPwd = await argon.hash(req.body.password);
+  user.profile = userProfile;
   await em.persistAndFlush(user);
   req.session.userId = user.id;
   res.send({

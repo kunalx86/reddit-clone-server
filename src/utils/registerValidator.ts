@@ -17,7 +17,16 @@ const RegisterSchema = yup.object().shape({
   .min(8, "Password should be 8 characters at least")
   .max(150, "Password should not exceed 150 characters")
   .matches(/^[a-zA-Z](?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&-+=()]).{3,15}$/, "Password must begin with an alphanumeric character and should include numeric, lower, upper case characters and one special character")
-  .required("Password is a necessary field")
+  .required("Password is a necessary field"),
+  fullName: yup
+  .string()
+  .max(35, "Fullname cannot be greater than 35 characters")
+  .matches(/^[A-Z]([a-z]){2,10} [A-Z]([a-z]{2,25})$/, "Name format is wrong")
+  .optional(),
+  bio: yup
+  .string()
+  .max(100, "Bio cannot exceed 100 characters")
+  .optional(),
 })
 
 export const registerValidator = async (user: IUser) => {
