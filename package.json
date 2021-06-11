@@ -73,6 +73,7 @@
     "@mikro-orm/migrations": "^4.5.5",
     "@mikro-orm/postgresql": "^4.5.5",
     "argon2": "^0.28.1",
+    "cloudinary": "^1.26.0",
     "command-line-args": "^5.1.1",
     "connect-redis": "^6.0.0",
     "cookie-parser": "^1.4.5",
@@ -87,6 +88,7 @@
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "pg": "^8.6.0",
     "redis": "^3.1.2",
     "yup": "^0.32.9"
