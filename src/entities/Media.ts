@@ -2,7 +2,7 @@ import { Cascade, Entity, Enum, OneToOne, Property } from "@mikro-orm/core";
 import { Base } from "./Base";
 import { Post } from "./Post";
 
-enum MediaType {
+export enum MediaType {
   IMAGE = "IMAGE",
   GIF = "GIF",
   TEXT = "TEXT"

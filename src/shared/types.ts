@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { MediaType } from "@entities/Media";
 
 export interface IUser {
   username: string;
@@ -28,4 +29,17 @@ export interface IGroup {
 
 export interface IGroupRequest extends Request {
   body: IGroup;
+}
+
+export interface IPost {
+  title: string;
+  group?: number;
+  media: {
+    type: MediaType;
+    text?: string;
+  }
+}
+
+export interface IPostCreateRequest extends Request {
+  body: IPost;
 }
