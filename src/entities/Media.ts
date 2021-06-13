@@ -26,7 +26,7 @@ export class Media extends Base {
   mediaText!: string;
 
   @OneToOne(() => Post, post => post.media, {
-    cascade: [Cascade.REMOVE],
+    cascade: [Cascade.PERSIST],
   })
   post!: Post;
 

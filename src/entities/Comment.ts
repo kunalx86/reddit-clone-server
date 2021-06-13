@@ -18,7 +18,7 @@ export class Comment extends Base {
   user!: User;
 
   @ManyToOne(() => Post, {
-    cascade: [Cascade.REMOVE],
+    cascade: [Cascade.PERSIST],
   })
   post!: Post;
 

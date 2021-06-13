@@ -43,3 +43,11 @@ export interface IPost {
 export interface IPostCreateRequest extends Request {
   body: IPost;
 }
+
+export interface IVote {
+  vote: number;
+}
+
+export interface IVotePostRequest extends Request {
+  body: IVote
+}

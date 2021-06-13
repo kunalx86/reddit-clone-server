@@ -10,12 +10,12 @@ export class PostVote extends Base {
   vote: number;
 
   @ManyToOne(() => Post, {
-    cascade: [Cascade.REMOVE],
+    cascade: [Cascade.PERSIST],
   })
   post!: Post;
 
   @ManyToOne(() => User, {
-    cascade: [Cascade.REMOVE],
+    cascade: [Cascade.PERSIST],
   })
   user!: User;
 

@@ -1,4 +1,4 @@
-import { Cascade, Entity, ManyToOne, Property } from "@mikro-orm/core";
+import { Cascade, Entity, ManyToOne, PrimaryKeyType, Property } from "@mikro-orm/core";
 import { Base } from "./Base";
 import { Comment } from "./Comment";
 import { User } from "./User";
@@ -7,12 +7,12 @@ import { User } from "./User";
 export class CommentVote extends Base {
 
   @ManyToOne(() => Comment, {
-    cascade: [Cascade.REMOVE],
+    cascade: [Cascade.PERSIST],
   })
   comment!: Comment;
 
   @ManyToOne(() => User, {
-    cascade: [Cascade.REMOVE],
+    cascade: [Cascade.PERSIST],
   })
   user!: User;
 

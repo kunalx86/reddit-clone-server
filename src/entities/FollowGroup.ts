@@ -7,7 +7,7 @@ import { User } from "./User";
 export class FollowGroup extends Base {
 
   @ManyToOne(() => User, {
-    cascade: [Cascade.REMOVE],
+    cascade: [Cascade.PERSIST],
   })
   user!: User;
 

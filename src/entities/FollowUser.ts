@@ -1,4 +1,4 @@
-import { Cascade, Entity, ManyToOne } from "@mikro-orm/core";
+import { Cascade, Entity, ManyToOne, PrimaryKeyType, Property } from "@mikro-orm/core";
 import { Base } from "./Base";
 import { User } from "./User";
 
@@ -6,12 +6,12 @@ import { User } from "./User";
 export class FollowUser extends Base {
 
   @ManyToOne(() => User, {
-    cascade: [Cascade.REMOVE]
+    cascade: [Cascade.PERSIST],
   })
   following!: User;
 
   @ManyToOne(() => User, {
-    cascade: [Cascade.REMOVE]
+    cascade: [Cascade.PERSIST],
   })
   followedBy!: User;
 

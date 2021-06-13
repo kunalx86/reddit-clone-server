@@ -25,7 +25,7 @@ export class GroupProfile extends Base {
 
   @OneToOne(() => Group, group => group.profile, {
     owner: true,
-    cascade: [Cascade.REMOVE]
+    cascade: [Cascade.PERSIST]
   })
   group!: Group;
 

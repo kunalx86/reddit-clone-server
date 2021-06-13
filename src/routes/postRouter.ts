@@ -1,4 +1,4 @@
-import { createPostController } from "@controllers/postController";
+import { createPostController, getPost, votePostController } from "@controllers/postController";
 import { verifyAuthor, verifyImageUpload } from "@middlewares/verifyPostPermission";
 import { verifyAuth } from "@middlewares/verifyAuth";
 import { Router } from "express";
@@ -39,5 +39,11 @@ router.route("/:postId/image")
       });
     }
   );
+
+router.route("/:postId/vote")
+  .post(verifyAuth, votePostController);
+
+router.route("/:postId")
+  .get(verifyAuth, getPost);
 
 export default router;
