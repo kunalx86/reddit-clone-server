@@ -86,7 +86,7 @@ export const votePostController = async (req: IVotePostRequest, res: Response) =
     post.votes.add(newPostVote);
     await em.persistAndFlush([newPostVote, post]);
   }
-  const { vote: voteCount } = post.votes.toArray().reduce((acc, curr) => ({vote: acc.vote + curr.vote}));
+  const { vote: voteCount } = post.votes.toArray().reduce((acc, curr) => ({vote: acc.vote + curr.vote}), { vote: 0 });
   const [hasVoted] = post.votes.toArray().filter(vote => {
     if (vote.user instanceof User)
       return vote.user.id === req.session.userId
@@ -96,7 +96,7 @@ export const votePostController = async (req: IVotePostRequest, res: Response) =
     post: {
       ...post,
       votes: voteCount,
-      voted: !!hasVoted
+      voted: hasVoted?.vote
     }
   }
   res.status(201).send({
@@ -108,26 +108,22 @@ export const getPost = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const postId = parseInt(req.params.postId);
   const post = await em.findOneOrFail(Post, {
-    id: postId
+    id: postId,
   }, {
-    populate: ['media', 'author', 'votes'],
+    populate: ['media', 'author', 'votes', 'comments'],
     strategy: LoadStrategy.JOINED
   });
-  console.log(post.votes.toArray())
-  const { vote } = post.votes.toArray().reduce((acc, curr) => ({vote: acc.vote + curr.vote}));
+  const { vote } = post.votes.toArray().reduce((acc, curr) => ({vote: acc.vote + curr.vote}), { vote: 0 });
   const [hasVoted] = post.votes.toArray().filter(vote => {
     if (vote.user instanceof User)
       return vote.user.id === req.session.userId
     return vote.user === req.session.userId
   });
   const data = {
-    post: {
-      ...post,
-      votes: vote,
-      voted: !!hasVoted
-    }
+    ...post,
+    votes: vote,
+    voted: hasVoted?.vote,
+    comments: post.comments.length
   }
-  res.status(200).send({
-    data
-  })
+  res.status(200).send({ data })
 }

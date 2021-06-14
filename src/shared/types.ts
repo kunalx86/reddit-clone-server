@@ -51,3 +51,20 @@ export interface IVote {
 export interface IVotePostRequest extends Request {
   body: IVote
 }
+
+export interface IVoteComment {
+  vote: number;
+}
+
+export interface IVoteCommentRequest extends Request {
+  body: IVoteComment;
+}
+
+export interface IComment {
+  comment: string;
+  parent?: number;
+}
+
+export interface ICommentPostRequest extends Request {
+  body: IComment;
+}

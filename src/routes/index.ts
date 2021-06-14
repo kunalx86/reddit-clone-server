@@ -10,6 +10,7 @@ import groupRouter from "./groupRouter";
 import followGroupRouter from "./followGroupRouter";
 import userProfileRouter from "./userProfileRouter";
 import postRouter from "./postRouter";
+import commentRouter from "./commentRouter";
 
 // Export the base-router
 const baseRouter = Router();
@@ -39,5 +40,6 @@ baseRouter.use("/group", groupRouter);
 baseRouter.use("/g", followGroupRouter);
 baseRouter.use("/profile", userProfileRouter);
 baseRouter.use("/post", postRouter);
+baseRouter.use("/comments", commentRouter);
 
 export default baseRouter;
