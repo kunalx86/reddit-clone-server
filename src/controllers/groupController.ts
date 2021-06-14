@@ -1,11 +1,12 @@
 import { Group } from "@entities/Group";
 import { GroupProfile } from "@entities/GroupProfile";
+import { Rule } from "@entities/Rule";
 import { User } from "@entities/User";
-import { RequestContext } from "@mikro-orm/core";
+import { LoadStrategy, RequestContext } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/postgresql";
-import { IGroupRequest } from "@shared/types";
+import { IGroupRequest, IRulesPostRequest } from "@shared/types";
 import { errorVerifier, groupValidator } from "@utils/groupValidator";
-import { Response } from "express";
+import { Response, Request } from "express";
 
 export const createGroupController = async (req: IGroupRequest, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
@@ -35,5 +36,39 @@ export const createGroupController = async (req: IGroupRequest, res: Response) =
   await em.persistAndFlush(group);
   res.status(201).send({
     data: group
+  });
+}
+export const addRulesController = async (req: IRulesPostRequest, res: Response) => {
+  const em = RequestContext.getEntityManager() as EntityManager;
+  const rules: Rule[] = req.body.rules.map(rule => new Rule(rule.rule))
+  const group = await em.findOneOrFail(Group, {
+    id: parseInt(req.params.groupId)
+  }, {
+    populate: ['profile', 'profile.rules'],
+    strategy: LoadStrategy.JOINED
+  });
+  rules.forEach(rule => {
+    rule.group = group.profile;
+    group.profile.rules.add(rule);
+  })
+  await em.persistAndFlush([...rules, group.profile])
+  res.send({
+    data: {
+      group
+    }
+  })
+}
+
+export const deleteRuleController = async (req: Request, res: Response) => {
+  const em = RequestContext.getEntityManager() as EntityManager;
+  const ruleId = parseInt(req.params.ruleId);
+  const groupId = parseInt(req.params.groupId);
+  const rule = await em.findOneOrFail(Rule, {
+    id: ruleId,
+    group: groupId // To be extra safe
+  });
+  await em.removeAndFlush(rule);
+  res.status(204).send({
+    data: rule
   });
 }

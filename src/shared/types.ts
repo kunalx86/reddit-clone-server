@@ -68,3 +68,13 @@ export interface IComment {
 export interface ICommentPostRequest extends Request {
   body: IComment;
 }
+
+export interface IRule {
+  rule: string;
+}
+
+export interface IRulesPostRequest extends Request {
+  body: {
+    rules: IRule[]
+  }
+}

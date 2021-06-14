@@ -1,3 +1,4 @@
+import { addRulesController, deleteRuleController } from "@controllers/groupController";
 import { groupUpload } from "@controllers/multerController";
 import { GroupProfile } from "@entities/GroupProfile";
 import { verifyAuth } from "@middlewares/verifyAuth";
@@ -38,5 +39,11 @@ router.route('/:groupId/pictures')
       message: "Picture(s) created"
     });
   });
+
+router.route("/:groupId/rules")
+  .post(verifyAuth, verifyGroupPermission, addRulesController);
+
+router.route("/:groupId/:ruleId")
+  .delete(verifyAuth, verifyGroupPermission, deleteRuleController);
 
 export default router;
