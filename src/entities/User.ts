@@ -17,7 +17,9 @@ export class User extends Base {
   @Property()
   username: string;
 
-  @Property()
+  @Property({
+    hidden: true
+  })
   email: string;
 
   @Property({

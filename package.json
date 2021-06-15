@@ -1,6 +1,10 @@
 {
   "name": "reddit-clone-server",
   "version": "0.0.0",
+  "author": {
+    "name": "Kunal Joshi",
+    "email": "mail.kunaljoshi@gmail.com"
+  },
   "license": "MIT",
   "scripts": {
     "build": "./node_modules/.bin/ts-node build.ts",

@@ -23,5 +23,5 @@ export default {
   },
   debug: !__prod__,
   tsNode: !__prod__,
-  autoJoinOneToOneOwner: true,
+  autoJoinOneToOneOwner: false,
 } as Configuration<IDatabaseDriver<Connection>> | Options<IDatabaseDriver<Connection>> | undefined;
