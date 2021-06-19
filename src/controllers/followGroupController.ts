@@ -5,17 +5,13 @@ import { RequestContext } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/postgresql";
 import { Request, Response } from "express";
 
-export const followGroupController = async (req: Request, res: Response) => {
+export const followGroup = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const groupId = parseInt(req.params.groupId);
 
-  const group = await em.findOne(Group, {
+  const group = await em.findOneOrFail(Group, {
     id: groupId
   });
-
-  if (!group) {
-    throw new Error("No such group");
-  }
 
   const ifExists = await em.findOne(FollowGroup, {
     group: groupId,

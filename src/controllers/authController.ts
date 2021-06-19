@@ -7,7 +7,7 @@ import { EntityManager } from "@mikro-orm/postgresql";
 import { RequestContext } from "@mikro-orm/core";
 import { UserProfile } from "@entities/UserProfile";
 
-export const registerController = async (req: IUserRegisterRequest, res: Response) => {
+export const registerUser = async (req: IUserRegisterRequest, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   try {
     await registerValidator(req.body);
@@ -44,7 +44,7 @@ export const registerController = async (req: IUserRegisterRequest, res: Respons
   })
 }
 
-export const loginController = async (req: IUserLoginRequest, res: Response) => {
+export const loginUser = async (req: IUserLoginRequest, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const isEmail = !!req.body.usernameOrEmail.split("@")[1];
   // No need to validate this input as we will not be saving anything to the database
@@ -70,7 +70,7 @@ export const loginController = async (req: IUserLoginRequest, res: Response) => 
   }
 }
 
-export const logoutController = (req: Request, res: Response) => {
+export const logoutUser = (req: Request, res: Response) => {
   req.session.destroy(err => {
     console.error(err);
   });

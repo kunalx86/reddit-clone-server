@@ -4,7 +4,7 @@ import { FollowUser } from "@entities/FollowUser";
 import { LoadStrategy, RequestContext } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/postgresql";
 
-export const followController = async (req: Request, res: Response) => {
+export const followUser = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const followId = parseInt(req.params.userId);
   

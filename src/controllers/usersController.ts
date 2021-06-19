@@ -8,7 +8,7 @@ import { EntityManager } from "@mikro-orm/postgresql";
 import { Request, Response } from "express";
 
 
-export const getUserController = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const username = req.params.username;
 
@@ -62,16 +62,13 @@ export const getUserController = async (req: Request, res: Response) => {
   });
 }
 
-export const getUserPostsController = async (req: Request, res: Response) => {
+export const getUserPosts = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const username = req.params.username;
 
-  const [ user, currUser ] = await Promise.all([
+  const [ user ] = await Promise.all([
     em.findOneOrFail(User, {
       username
-    }),
-    em.findOne(User, {
-      id: req.session.userId
     })
   ]);
   const posts = await em.find(Post, {
@@ -81,38 +78,22 @@ export const getUserPostsController = async (req: Request, res: Response) => {
     strategy: LoadStrategy.JOINED
   })
 
-  let data = {}
-
-  if (currUser) {
-    data = posts.map(post => {
-      const { vote: voteCount } = post.votes.toArray().reduce((acc, curr) => ({vote: acc.vote + curr.vote}), { vote: 0 });
-      const [hasVoted] = post.votes.toArray().filter(vote => {
-        if (vote.user instanceof User)
-          return vote.user.id === req.session.userId
-        return vote.user === req.session.userId
-      })
-      return {
-        ...post,
-        votes: voteCount,
-        voted: hasVoted?.vote
-      }
-    })
-  }
-  else data = posts;
+  const data = posts.map(post => ({
+    ...post,
+    votes: post.getVotes(),
+    voted: post.getHasVoted(req.session.userId || -1)
+  }));
   
   res.status(200).send({ data });
 }
 
-export const getUserCommentsController = async (req: Request, res: Response) => {
+export const getUserComments = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const username = req.params.username;
 
-  const [ user, currUser ] = await Promise.all([
+  const [ user ] = await Promise.all([
     em.findOneOrFail(User, {
       username
-    }),
-    em.findOne(User, {
-      id: req.session.userId
     })
   ]);
   const comments = await em.find(Comment, {
@@ -121,25 +102,11 @@ export const getUserCommentsController = async (req: Request, res: Response) => 
     populate: ['votes'],
     strategy: LoadStrategy.JOINED
   })
-
-  let data = {}
-
-  if (currUser) {
-    data = comments.map(comment => {
-      const { vote: voteCount } = comment.votes.toArray().reduce((acc, curr) => ({vote: acc.vote + curr.vote}), { vote: 0 });
-      const [hasVoted] = comment.votes.toArray().filter(vote => {
-        if (vote.user instanceof User)
-          return vote.user.id === req.session.userId
-        return vote.user === req.session.userId
-      })
-      return {
-        ...comment,
-        votes: voteCount,
-        voted: hasVoted?.vote
-      }
-    })
-  }
-  else data = comments;
   
+  const data = comments.map(comment => ({
+    ...comment,
+    votes: comment.getVotes(),
+    voted: comment.getHasVoted(req.session.userId || -1) 
+  }))
   res.status(200).send({ data });
 }

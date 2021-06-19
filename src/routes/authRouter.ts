@@ -1,16 +1,16 @@
 import express from "express";
-import { loginController, logoutController, registerController } from "@controllers/authController";
+import { loginUser, logoutUser, registerUser } from "@controllers/authController";
 import { verifyAuth } from "@middlewares/verifyAuth";
 
 const router = express.Router();
 
 router.route('/register')
-  .post(registerController);
+  .post(registerUser);
 
 router.route('/login')
-  .post(loginController);
+  .post(loginUser);
 
 router.route('/logout')
-  .post(verifyAuth, logoutController);
+  .post(verifyAuth, logoutUser);
 
 export default router;

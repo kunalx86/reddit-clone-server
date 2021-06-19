@@ -7,7 +7,7 @@ import { EntityManager } from "@mikro-orm/postgresql";
 import { ICommentPostRequest, IVoteCommentRequest } from "@shared/types";
 import { Response, Request } from "express";
 
-export const createCommentController = async (req: ICommentPostRequest, res: Response) => {
+export const createComment = async (req: ICommentPostRequest, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const postId = parseInt(req.params.postId);
   if (!req.body.comment.length || req.body.comment.length > 150) {
@@ -32,11 +32,14 @@ export const createCommentController = async (req: ICommentPostRequest, res: Res
   }
   await em.persistAndFlush(comment);
   res.status(201).send({
-    data: comment
+    data: {
+      ...comment,
+      votes: 0
+    }
   });
 }
 
-export const getCommentsController = async (req: Request, res: Response) => {
+export const getComments = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const postId = parseInt(req.params.postId);
   const comments = await em.find(Comment, {
@@ -51,12 +54,6 @@ export const getCommentsController = async (req: Request, res: Response) => {
   });
   // Has to be inside because of req object
   const mapCommentVotes = (comment: Comment) => {
-    const { vote:voteCount } = comment.votes.toArray().reduce((acc, curr) => ({vote: acc.vote + curr.vote}), { vote: 0 });
-    const [ hasVoted ] = comment.votes.toArray().filter(vote => {
-      if (vote.user instanceof User)
-        return vote.user.id === req.session.userId
-      return vote.user === req.session.userId
-    });
     const replies = comment.replies.toArray().map(reply => {
       const { vote:voteCountR } = reply.votes.reduce((acc: { vote: number }, curr: { vote:number }) => ({vote: acc.vote + curr.vote}), { vote: 0 });
       const [ hasVotedR ] = reply.votes.filter((vote: CommentVote) => vote.user.id === req.session.userId);
@@ -69,15 +66,15 @@ export const getCommentsController = async (req: Request, res: Response) => {
     return {
       ...comment,
       replies: replies,
-      votes: voteCount,
-      voted: hasVoted?.vote,
+      votes: comment.getVotes(),
+      voted: comment.getHasVoted(req.session.userId || -1),
     }
   }
   const data = comments.map(mapCommentVotes);
   res.status(200).send({ data })
 }
 
-export const voteCommentController = async (req: IVoteCommentRequest, res: Response) => {
+export const voteComment = async (req: IVoteCommentRequest, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const commentId = parseInt(req.params.commentId);
   const vote = req.body.vote >= 1 && ! (req.body.vote < -1) ? 1 : -1;
@@ -110,18 +107,10 @@ export const voteCommentController = async (req: IVoteCommentRequest, res: Respo
     comment.votes.add(newCommentVote);
     await em.persistAndFlush([comment, newCommentVote]);
   }
-  const { vote:voteCount } = comment.votes.toArray().reduce((acc, curr) => ({vote: acc.vote + curr.vote}), { vote: 0 });
-  const [ hasVoted ] = comment.votes.toArray().filter(vote => {
-    if (vote.user instanceof User)
-      return vote.user.id === req.session.userId
-    return vote.user === req.session.userId
-  });
   const data = {
-    comment: {
-      ...comment,
-      votes: voteCount,
-      voted: hasVoted?.vote
-    }
+    ...comment,
+    votes: comment.getVotes(),
+    voted: comment.getHasVoted(req.session.userId || -1)
   }
   res.status(201).send({ data });
 }

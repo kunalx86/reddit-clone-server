@@ -9,7 +9,7 @@ import { IPostCreateRequest, IVotePostRequest } from "@shared/types";
 import { errorVerifier, validatePost } from "@utils/postValidator";
 import { Response, Request } from "express";
 
-export const createPostController = async (req: IPostCreateRequest, res: Response) => {
+export const createPost = async (req: IPostCreateRequest, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   try {
     await validatePost(req.body);
@@ -54,7 +54,7 @@ export const createPostController = async (req: IPostCreateRequest, res: Respons
 * After if vote value is same as previous, undo it
 * If different then set the new value
 */
-export const votePostController = async (req: IVotePostRequest, res: Response) => {
+export const votePost = async (req: IVotePostRequest, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const postId = parseInt(req.params.postId);
   const vote = req.body.vote >= 1 && ! (req.body.vote < -1) ? 1 : -1;
@@ -86,18 +86,10 @@ export const votePostController = async (req: IVotePostRequest, res: Response) =
     post.votes.add(newPostVote);
     await em.persistAndFlush([newPostVote, post]);
   }
-  const { vote: voteCount } = post.votes.toArray().reduce((acc, curr) => ({vote: acc.vote + curr.vote}), { vote: 0 });
-  const [hasVoted] = post.votes.toArray().filter(vote => {
-    if (vote.user instanceof User)
-      return vote.user.id === req.session.userId
-    return vote.user === req.session.userId
-  });
   const data = {
-    post: {
-      ...post,
-      votes: voteCount,
-      voted: hasVoted?.vote
-    }
+    ...post,
+    votes: post.getVotes(),
+    voted: post.getHasVoted(req.session.userId || -1)
   }
   res.status(201).send({
     data
@@ -113,16 +105,10 @@ export const getPost = async (req: Request, res: Response) => {
     populate: ['media', 'author', 'votes', 'comments'],
     strategy: LoadStrategy.JOINED
   });
-  const { vote } = post.votes.toArray().reduce((acc, curr) => ({vote: acc.vote + curr.vote}), { vote: 0 });
-  const [hasVoted] = post.votes.toArray().filter(vote => {
-    if (vote.user instanceof User)
-      return vote.user.id === req.session.userId
-    return vote.user === req.session.userId
-  });
   const data = {
     ...post,
-    votes: vote,
-    voted: hasVoted?.vote,
+    votes: post.getVotes(),
+    voted: post.getHasVoted(req.session.userId || -1),
     comments: post.comments.length
   }
   res.status(200).send({ data })
