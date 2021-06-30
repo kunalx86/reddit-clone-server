@@ -31,23 +31,27 @@ export class Comment extends Base {
   @ManyToOne(() => Comment, {
     nullable: true,
     cascade: [Cascade.PERSIST],
+    hidden: true,
   })
   parent!: Comment;
 
-  @OneToMany(() => CommentVote, commentVote => commentVote.comment)
+  @OneToMany(() => CommentVote, commentVote => commentVote.comment, {
+    hidden: true
+  })
   votes = new Collection<CommentVote>(this);
+
+  @Property({
+    default: 0
+  })
+  votesCount!: number
 
   constructor(comment: string) {
     super();
     this.comment = comment;
   }
-  getVotes() {
-    const { vote: voteCount } = this.votes.toArray().reduce((acc, curr) => ({ vote: acc.vote + curr.vote }), { vote: 0 });
-    return voteCount;
-  }
 
   getHasVoted(userId: number) {
-    const [hasVoted] = this.votes.toArray().filter(vote => {
+    const [hasVoted] = this.votes.getItems().filter(vote => {
       if (vote.user instanceof User)
         return vote.user.id === userId
       return vote.user === userId

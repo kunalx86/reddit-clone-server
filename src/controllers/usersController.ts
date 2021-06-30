@@ -3,8 +3,9 @@ import { FollowGroup } from "@entities/FollowGroup";
 import { FollowUser } from "@entities/FollowUser";
 import { Post } from "@entities/Post";
 import { User } from "@entities/User";
-import { LoadStrategy, RequestContext } from "@mikro-orm/core";
+import { LoadStrategy, QueryFlag, RequestContext } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/postgresql";
+import { PAGE_SIZE } from "@shared/constants";
 import { Request, Response } from "express";
 
 
@@ -65,26 +66,36 @@ export const getUser = async (req: Request, res: Response) => {
 export const getUserPosts = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const username = req.params.username;
+  const { page, sortBy } = req.query;
 
   const [ user ] = await Promise.all([
     em.findOneOrFail(User, {
       username
     })
   ]);
-  const posts = await em.find(Post, {
+  const [ posts, count ] = await em.findAndCount(Post, {
     author: user
   }, {
-    populate: ['votes', 'group', 'media'],
-    strategy: LoadStrategy.JOINED
+    populate: ['group', 'media'],
+    strategy: LoadStrategy.JOINED,
+    limit: PAGE_SIZE,
+    offset: parseInt(page as string) * PAGE_SIZE,
+    flags: [QueryFlag.DISTINCT] 
   })
-
+  await Promise.all(posts.map(post => post.votes.init()))
   const data = posts.map(post => ({
     ...post,
-    votes: post.getVotes(),
-    voted: post.getHasVoted(req.session.userId || -1)
+    voted: post.getHasVoted(req.session.userId || -1),
+    votes: undefined  
   }));
   
-  res.status(200).send({ data });
+  res.status(200).send({ 
+    data: {
+      posts: data,
+      hasMore: !((parseInt(page as string)+1) * PAGE_SIZE >= count),
+      count
+    }
+  });
 }
 
 export const getUserComments = async (req: Request, res: Response) => {
@@ -105,7 +116,6 @@ export const getUserComments = async (req: Request, res: Response) => {
   
   const data = comments.map(comment => ({
     ...comment,
-    votes: comment.getVotes(),
     voted: comment.getHasVoted(req.session.userId || -1) 
   }))
   res.status(200).send({ data });

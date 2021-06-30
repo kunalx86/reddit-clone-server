@@ -8,10 +8,13 @@ export class FollowGroup extends Base {
 
   @ManyToOne(() => User, {
     cascade: [Cascade.PERSIST],
+    hidden: true
   })
   user!: User;
 
-  @ManyToOne(() => Group)
+  @ManyToOne(() => Group, {
+    hidden: true
+  })
   group!: Group;
 
   @Property({

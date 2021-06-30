@@ -7,11 +7,13 @@ export class FollowUser extends Base {
 
   @ManyToOne(() => User, {
     cascade: [Cascade.PERSIST],
+    hidden: true
   })
   following!: User;
 
   @ManyToOne(() => User, {
     cascade: [Cascade.PERSIST],
+    hidden: true
   })
   followedBy!: User;
 

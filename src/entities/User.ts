@@ -32,10 +32,14 @@ export class User extends Base {
   })
   profile!: UserProfile
 
-  @OneToMany(() => FollowUser, follow => follow.followedBy)
+  @OneToMany(() => FollowUser, follow => follow.followedBy, {
+    hidden: true
+  })
   followingUsers = new Collection<FollowUser>(this);
 
-  @OneToMany(() => FollowUser, follow => follow.following)
+  @OneToMany(() => FollowUser, follow => follow.following, {
+    hidden: true
+  })
   followedByUsers = new Collection<FollowUser>(this);
 
   @OneToMany(() => Post, post => post.author)
@@ -53,7 +57,9 @@ export class User extends Base {
   @OneToMany(() => Group, group => group.owner)
   groupsCreated = new Collection<Group>(this);
 
-  @OneToMany(() => FollowGroup, followGroup => followGroup.user)
+  @OneToMany(() => FollowGroup, followGroup => followGroup.user, {
+    hidden: true
+  })
   followingGroups = new Collection<FollowGroup>(this);
 
   constructor(username: string, email: string) {
@@ -68,6 +74,14 @@ export class User extends Base {
 
   async verifyPassword(password: string) {
     return await argon.verify(this.hashedPwd, password);
+  }
+
+  getFollowers() {
+    return this.followedByUsers.getItems().map(f => f.followedBy)
+  }
+
+  getFollowing() {
+    return this.followingUsers.getItems().map(f => f.following)
   }
 
   static getUser(userId: number) {

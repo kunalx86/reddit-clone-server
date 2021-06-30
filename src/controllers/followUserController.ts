@@ -33,32 +33,34 @@ export const followUser = async (req: Request, res: Response) => {
 
 export const getFollowersController = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
-  const resultSet = await em.find(User, {
-    id: req.session.userId,
+
+  const user = await em.findOneOrFail(User, {
+    id: req.session.userId
   }, {
     populate: ['followedByUsers', 'followedByUsers.followedBy', 'followedByUsers.followedBy.profile'],
     strategy: LoadStrategy.JOINED
   });
 
-  const [followers] = resultSet.map(follower => follower.followedByUsers);
-  
   res.status(200).send({
-    data: { followers: followers.toArray().map(user => user.followedBy) }
-  });
+    data: { 
+      followers: user.getFollowers()
+    }
+  })
 }
 
 export const getFollowingController = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
-  const resultSet = await em.find(User, {
-    id: req.session.userId,
+  
+  const user = await em.findOneOrFail(User, {
+    id: req.session.userId
   }, {
     populate: ['followingUsers', 'followingUsers.following', 'followingUsers.following.profile'],
-    strategy: LoadStrategy.JOINED,
+    strategy: LoadStrategy.JOINED
   });
-
-  const [following] = resultSet.map(follower => follower.followingUsers);
 
   res.status(200).send({
-    data: { following: following.toArray().map(user => user.following) }
-  });
+    data: {
+      following: user.getFollowing()
+    }
+  })
 }

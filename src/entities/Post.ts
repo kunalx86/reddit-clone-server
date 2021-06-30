@@ -22,8 +22,15 @@ export class Post extends Base {
   })
   media!: Media;
 
-  @OneToMany(() => PostVote, postVote => postVote.post)
+  @OneToMany(() => PostVote, postVote => postVote.post, {
+    hidden: true
+  })
   votes = new Collection<PostVote>(this);
+
+  @Property({
+    default: 0
+  })
+  votesCount!: number
 
   @OneToMany(() => Comment, comment => comment.post)
   comments = new Collection<Comment>(this);
@@ -38,13 +45,8 @@ export class Post extends Base {
     this.title = title;
   }
 
-  getVotes() {
-    const { vote: voteCount } = this.votes.toArray().reduce((acc, curr) => ({ vote: acc.vote + curr.vote }), { vote: 0 });
-    return voteCount;
-  }
-
   getHasVoted(userId: number) {
-    const [hasVoted] = this.votes.toArray().filter(vote => {
+    const [hasVoted] = this.votes.getItems().filter(vote => {
       if (vote.user instanceof User)
         return vote.user.id === userId
       return vote.user === userId

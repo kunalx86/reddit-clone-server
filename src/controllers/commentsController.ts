@@ -34,7 +34,6 @@ export const createComment = async (req: ICommentPostRequest, res: Response) => 
   res.status(201).send({
     data: {
       ...comment,
-      votes: 0
     }
   });
 }
@@ -46,7 +45,7 @@ export const getComments = async (req: Request, res: Response) => {
     post: postId,
     parent: null
   }, {
-    populate: ['replies', 'votes', 'user', 'replies.user', 'replies.votes'],
+    populate: ['replies', 'votes', 'user.profile', 'replies.user', 'replies.user.profile', 'replies.votes'],
     orderBy: {
       createdAt:'asc'
     },
@@ -54,19 +53,16 @@ export const getComments = async (req: Request, res: Response) => {
   });
   // Has to be inside because of req object
   const mapCommentVotes = (comment: Comment) => {
-    const replies = comment.replies.toArray().map(reply => {
-      const { vote:voteCountR } = reply.votes.reduce((acc: { vote: number }, curr: { vote:number }) => ({vote: acc.vote + curr.vote}), { vote: 0 });
-      const [ hasVotedR ] = reply.votes.filter((vote: CommentVote) => vote.user.id === req.session.userId);
-      return {
-        ...reply,
-        votes: voteCountR,
-        voted: hasVotedR?.vote
-      }
-    });
+    const replies = comment.replies.getItems().map(reply => ({
+      ...reply,
+      parent: undefined,
+      votes: undefined,
+      voted: reply.getHasVoted(req.session.userId || -1)
+    }))
     return {
       ...comment,
       replies: replies,
-      votes: comment.getVotes(),
+      votes: undefined,
       voted: comment.getHasVoted(req.session.userId || -1),
     }
   }
@@ -92,12 +88,15 @@ export const voteComment = async (req: IVoteCommentRequest, res: Response) => {
   if (commentVote) {
     if (vote === commentVote.vote) {
       comment.votes.remove(commentVote);
-      em.removeAndFlush(commentVote);
+      vote === 1 ? comment.votesCount-- : comment.votesCount++;
+      await em.removeAndFlush(commentVote);
     }
     else {
       commentVote.vote = vote;
-      em.persistAndFlush(commentVote);
+      vote === 1 ? comment.votesCount++ : comment.votesCount--;
+      await em.persistAndFlush(commentVote);
     }
+    await em.persistAndFlush(comment)
   }
   else {
     const user = await User.getUser(req.session.userId || -1);
@@ -105,11 +104,11 @@ export const voteComment = async (req: IVoteCommentRequest, res: Response) => {
     newCommentVote.user = user;
     newCommentVote.comment = comment;
     comment.votes.add(newCommentVote);
+    comment.votesCount += vote;
     await em.persistAndFlush([comment, newCommentVote]);
   }
   const data = {
     ...comment,
-    votes: comment.getVotes(),
     voted: comment.getHasVoted(req.session.userId || -1)
   }
   res.status(201).send({ data });

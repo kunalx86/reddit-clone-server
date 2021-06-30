@@ -11,11 +11,13 @@ export class PostVote extends Base {
 
   @ManyToOne(() => Post, {
     cascade: [Cascade.PERSIST],
+    hidden: true
   })
   post!: Post;
 
   @ManyToOne(() => User, {
     cascade: [Cascade.PERSIST],
+    hidden: true
   })
   user!: User;
 

@@ -1,4 +1,4 @@
-import { createPost, getPost, votePost } from "@controllers/postsController";
+import { createPost, getPost, getPosts, votePost } from "@controllers/postsController";
 import { verifyAuthor, verifyImageUpload } from "@middlewares/verifyPostPermission";
 import { verifyAuth } from "@middlewares/verifyAuth";
 import { Router } from "express";
@@ -10,7 +10,8 @@ import { Post } from "@entities/Post";
 const router = Router();
 
 router.route("/")
-  .post(verifyAuth, postCreatePermission, createPost);
+  .post(verifyAuth, postCreatePermission, createPost)
+  .get(getPosts);
 
 router.route("/:postId/image")
   .post(verifyAuth,

@@ -10,6 +10,12 @@ import { Router } from "express";
 
 const router = Router();
 
+router.route("/follow/:groupId")
+  .post(verifyAuth, followGroup);
+
+router.route('/create')
+  .post(verifyAuth, createGroup);
+
 router.route('/:groupId/profile')
   .post(verifyAuth, verifyGroupPermission, groupUpload.fields([{
     name: 'profilePicture',
@@ -46,11 +52,5 @@ router.route("/:groupId/rules")
 
 router.route("/:groupId/:ruleId")
   .delete(verifyAuth, verifyGroupPermission, deleteRule);
-
-router.route("/follow/:groupId")
-  .post(verifyAuth, followGroup);
-
-router.route('/create')
-  .post(verifyAuth, createGroup);
 
 export default router;
