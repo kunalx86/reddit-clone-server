@@ -66,7 +66,7 @@ export const getUser = async (req: Request, res: Response) => {
 export const getUserPosts = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const username = req.params.username;
-  const { page, sortBy } = req.query;
+  const { page } = req.query;
 
   const [ user ] = await Promise.all([
     em.findOneOrFail(User, {
@@ -80,6 +80,9 @@ export const getUserPosts = async (req: Request, res: Response) => {
     strategy: LoadStrategy.JOINED,
     limit: PAGE_SIZE,
     offset: parseInt(page as string) * PAGE_SIZE,
+    orderBy: {
+      createdAt: 'desc'
+    },
     flags: [QueryFlag.DISTINCT] 
   })
   await Promise.all(posts.map(post => post.votes.init()))

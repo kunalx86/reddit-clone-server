@@ -1,5 +1,5 @@
 import { followGroup } from "@controllers/followGroupController";
-import { addRules, createGroup, deleteRule } from "@controllers/groupsController";
+import { addRules, createGroup, deleteRule, getGroupPosts, getRules } from "@controllers/groupsController";
 import { groupUpload } from "@controllers/multerController";
 import { GroupProfile } from "@entities/GroupProfile";
 import { verifyAuth } from "@middlewares/verifyAuth";
@@ -15,6 +15,9 @@ router.route("/follow/:groupId")
 
 router.route('/create')
   .post(verifyAuth, createGroup);
+
+router.route('/:groupName')
+  .get(getGroupPosts);
 
 router.route('/:groupId/profile')
   .post(verifyAuth, verifyGroupPermission, groupUpload.fields([{
@@ -48,6 +51,7 @@ router.route('/:groupId/profile')
   });
 
 router.route("/:groupId/rules")
+  .get(getRules)
   .post(verifyAuth, verifyGroupPermission, addRules);
 
 router.route("/:groupId/:ruleId")

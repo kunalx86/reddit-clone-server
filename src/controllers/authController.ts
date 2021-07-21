@@ -6,6 +6,7 @@ import { User } from "@entities/User";
 import { EntityManager } from "@mikro-orm/postgresql";
 import { RequestContext } from "@mikro-orm/core";
 import { UserProfile } from "@entities/UserProfile";
+import { FORBIDDEN_USERNAMES } from "@shared/constants";
 
 export const registerUser = async (req: IUserRegisterRequest, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
@@ -30,6 +31,13 @@ export const registerUser = async (req: IUserRegisterRequest, res: Response) => 
   if (emailUser) {
     throw new Error("Email already exists");
   }
+
+  if (FORBIDDEN_USERNAMES.includes(req.body.username)) {
+    return res.status(400).send({
+      error: `${req.body.username} is not a valid username`
+    })
+  }
+
   const user = new User(req.body.username, req.body.email)
   const userProfile = new UserProfile("default_profile_pic", "default_bg_pic");
   userProfile.fullName = req.body.fullName || "";

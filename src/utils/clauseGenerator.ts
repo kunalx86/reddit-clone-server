@@ -12,7 +12,7 @@ export const generateOrderByClause = (sortBy: string | undefined): QueryOrderMap
       }
     case 'latest':
       return {
-        createdAt: 'asc'
+        createdAt: 'desc'
       }
     default:
       return {
