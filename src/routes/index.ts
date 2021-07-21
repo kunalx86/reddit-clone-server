@@ -8,6 +8,7 @@ import groupsRouter from "./groupsRouter";
 import postsRouter from "./postsRouter";
 import commentsRouter from "./commentsRouter";
 import usersRouter from "./usersRouter";
+import searchRouter from "./searchRouter";
 
 // Export the base-router
 const baseRouter = Router();
@@ -33,6 +34,7 @@ baseRouter.get('/whoami', verifyAuth, async (req: Request, res: Response) => {
 baseRouter.use("/auth", authRouter);
 baseRouter.use("/g", groupsRouter);
 baseRouter.use("/u", usersRouter);
+baseRouter.use("/search", searchRouter);
 baseRouter.use("/posts", postsRouter);
 baseRouter.use("/comments", commentsRouter);
 

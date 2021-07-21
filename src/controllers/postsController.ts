@@ -135,14 +135,13 @@ export const getPost = async (req: Request, res: Response) => {
 export const getPosts = async (req: Request, res: Response) => {
   const em = RequestContext.getEntityManager() as EntityManager;
   const { page, sortBy } = req.query;
-  const user = await em.findOneOrFail(User, {
+  const user = await em.findOne(User, {
     id: req.session.userId
   }, {
     populate: ['followingUsers', 'followingUsers.following', 'followingUsers.following.profile', 'followingGroups'],
     strategy: LoadStrategy.JOINED
   })
-         
-  const [ posts, count ] = await em.findAndCount(Post, {
+  const [ posts, count ] = await em.findAndCount(Post, user ? {
     $or: [
       {
         author: {
@@ -155,7 +154,7 @@ export const getPosts = async (req: Request, res: Response) => {
         }
       }
     ]
-  }, {
+  } : { }, {
     populate: ['media', 'author', 'author.profile', 'group'],
     strategy: LoadStrategy.JOINED,
     limit: PAGE_SIZE,
