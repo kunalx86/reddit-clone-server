@@ -1,12 +1,11 @@
 import { Group } from "@entities/Group";
 import { Post } from "@entities/Post";
 import { User } from "@entities/User";
-import { LoadStrategy, RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/knex";
+import { LoadStrategy } from "@mikro-orm/core";
 import { Request, Response } from "express";
 
 export const search = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const query = `%${req.query.query as string}%`
 
   const data = await Promise.all([

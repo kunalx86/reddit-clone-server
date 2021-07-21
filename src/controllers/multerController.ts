@@ -1,6 +1,4 @@
 import { v2 as cloudinary } from "cloudinary";
-import { RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { UserProfile } from "@entities/UserProfile";
@@ -10,7 +8,7 @@ import { Post } from "@entities/Post";
 const userStorageCloudinary = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
-    const em = RequestContext.getEntityManager() as EntityManager;
+    const { em } = req;
     const userProfile = await em.findOneOrFail(UserProfile, {
       user: req.session.userId
     }, {
@@ -44,7 +42,7 @@ export const userUpload = multer({
 const groupStorageCloudinary = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
-    const em = RequestContext.getEntityManager() as EntityManager;
+    const { em } = req;
     const groupId = parseInt(req.params.groupId);
     const groupProfile = await em.findOneOrFail(GroupProfile, {
       group: groupId
@@ -79,7 +77,7 @@ export const groupUpload = multer({
 const postStorageCloudinary = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
-    const em = RequestContext.getEntityManager() as EntityManager;
+    const { em } = req;
     const postId = parseInt(req.params.postId);
     const post = await em.findOneOrFail(Post, {
       id: postId

@@ -2,13 +2,12 @@ import { Comment } from "@entities/Comment";
 import { CommentVote } from "@entities/CommentVote";
 import { Post } from "@entities/Post";
 import { User } from "@entities/User";
-import { LoadStrategy, RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
+import { LoadStrategy } from "@mikro-orm/core";
 import { ICommentPostRequest, IVoteCommentRequest } from "@shared/types";
 import { Response, Request } from "express";
 
 export const createComment = async (req: ICommentPostRequest, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const postId = parseInt(req.params.postId);
   if (!req.body.comment.length || req.body.comment.length > 150) {
     return res.status(400).send({
@@ -39,7 +38,7 @@ export const createComment = async (req: ICommentPostRequest, res: Response) => 
 }
 
 export const getComments = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const postId = parseInt(req.params.postId);
   const comments = await em.find(Comment, {
     post: postId,
@@ -71,7 +70,7 @@ export const getComments = async (req: Request, res: Response) => {
 }
 
 export const voteComment = async (req: IVoteCommentRequest, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const commentId = parseInt(req.params.commentId);
   const vote = req.body.vote >= 1 && ! (req.body.vote < -1) ? 1 : -1;
 

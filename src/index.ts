@@ -65,6 +65,11 @@ import { EntityManager } from '@mikro-orm/postgresql';
     RequestContext.create(orm.em as EntityManager, next);
   })
 
+  app.use((req, res, next) => {
+    req.em = RequestContext.getEntityManager() as EntityManager;
+    next();
+  })
+
   // Add APIs
   app.use('/api', BaseRouter);
 

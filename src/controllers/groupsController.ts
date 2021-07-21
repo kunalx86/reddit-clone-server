@@ -4,8 +4,7 @@ import { Post } from "@entities/Post";
 import { Comment } from "@entities/Comment";
 import { Rule } from "@entities/Rule";
 import { User } from "@entities/User";
-import { LoadStrategy, QueryFlag, RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
+import { LoadStrategy, QueryFlag } from "@mikro-orm/core";
 import { FORBIDDEN_GROUPNAMES, PAGE_SIZE } from "@shared/constants";
 import { IGroupRequest, IRulesPostRequest } from "@shared/types";
 import { generateOrderByClause } from "@utils/clauseGenerator";
@@ -13,7 +12,7 @@ import { errorVerifier, groupValidator } from "@utils/groupValidator";
 import { Response, Request } from "express";
 
 export const createGroup = async (req: IGroupRequest, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
 
   try {
     await groupValidator(req.body);
@@ -50,7 +49,7 @@ export const createGroup = async (req: IGroupRequest, res: Response) => {
 }
 
 export const getGroupPosts = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const groupName = req.params.groupName
   const { page, sortBy } = req.query;
   const [ posts, count ] = await em.findAndCount(Post, {
@@ -91,7 +90,7 @@ export const getGroupPosts = async (req: Request, res: Response) => {
 }
 
 export const addRules = async (req: IRulesPostRequest, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const rules: Rule[] = req.body.rules.map(rule => new Rule(rule.rule))
   const group = await em.findOneOrFail(Group, {
     id: parseInt(req.params.groupId)
@@ -112,7 +111,7 @@ export const addRules = async (req: IRulesPostRequest, res: Response) => {
 }
 
 export const deleteRule = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const ruleId = parseInt(req.params.ruleId);
   const groupId = parseInt(req.params.groupId);
   const rule = await em.findOneOrFail(Rule, {
@@ -126,7 +125,7 @@ export const deleteRule = async (req: Request, res: Response) => {
 }
 
 export const getRules = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const groupId = parseInt(req.params.groupId);
 
   const rules = await em.find(Rule, {

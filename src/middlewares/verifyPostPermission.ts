@@ -1,11 +1,10 @@
 import { MediaType } from "@entities/Media";
 import { Post } from "@entities/Post";
-import { LoadStrategy, RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
+import { LoadStrategy } from "@mikro-orm/core";
 import { NextFunction, Response, Request } from "express";
 
 export const verifyAuthor = async (req: Request, res: Response, next: NextFunction) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const postId = parseInt(req.params.postId);
   const post = await em.findOneOrFail(Post, {
     id: postId
@@ -18,7 +17,7 @@ export const verifyAuthor = async (req: Request, res: Response, next: NextFuncti
 }
 
 export const verifyImageUpload = async (req: Request, res: Response, next: NextFunction) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const postId = parseInt(req.params.postId);
   const post = await em.findOneOrFail(Post, {
     id: postId

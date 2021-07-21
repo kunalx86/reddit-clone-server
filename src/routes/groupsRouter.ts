@@ -3,9 +3,8 @@ import { addRules, createGroup, deleteRule, getGroupPosts, getRules } from "@con
 import { groupUpload } from "@controllers/multerController";
 import { GroupProfile } from "@entities/GroupProfile";
 import { verifyAuth } from "@middlewares/verifyAuth";
+import { verifyGroupExistsId, verifyGroupExistsName } from "@middlewares/verifyExists";
 import { verifyGroupPermission } from "@middlewares/verifyGroupPermission";
-import { RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
 import { Router } from "express";
 
 const router = Router();
@@ -17,7 +16,7 @@ router.route('/create')
   .post(verifyAuth, createGroup);
 
 router.route('/:groupName')
-  .get(getGroupPosts);
+  .get(verifyGroupExistsName, getGroupPosts);
 
 router.route('/:groupId/profile')
   .post(verifyAuth, verifyGroupPermission, groupUpload.fields([{
@@ -27,7 +26,7 @@ router.route('/:groupId/profile')
     name: 'bgProfilePicture',
     maxCount: 1,
   }]), async (req, res) => {
-    const em = RequestContext.getEntityManager() as EntityManager;
+    const { em } = req;
     const groupId = parseInt(req.params.groupId);
     const groupProfile = await em.findOneOrFail(GroupProfile, {
       group: groupId
@@ -51,7 +50,7 @@ router.route('/:groupId/profile')
   });
 
 router.route("/:groupId/rules")
-  .get(getRules)
+  .get(verifyGroupExistsId, getRules)
   .post(verifyAuth, verifyGroupPermission, addRules);
 
 router.route("/:groupId/:ruleId")

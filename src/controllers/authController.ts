@@ -3,13 +3,11 @@ import argon from "argon2";
 import { Request, Response } from "express";
 import { errorVerifier, registerValidator } from "@utils/registerValidator";
 import { User } from "@entities/User";
-import { EntityManager } from "@mikro-orm/postgresql";
-import { RequestContext } from "@mikro-orm/core";
 import { UserProfile } from "@entities/UserProfile";
 import { FORBIDDEN_USERNAMES } from "@shared/constants";
 
 export const registerUser = async (req: IUserRegisterRequest, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   try {
     await registerValidator(req.body);
   } catch(err) {
@@ -53,7 +51,7 @@ export const registerUser = async (req: IUserRegisterRequest, res: Response) => 
 }
 
 export const loginUser = async (req: IUserLoginRequest, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const isEmail = !!req.body.usernameOrEmail.split("@")[1];
   // No need to validate this input as we will not be saving anything to the database
   const user = await em.findOne(User, isEmail ? {

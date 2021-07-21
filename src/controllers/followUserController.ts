@@ -1,11 +1,10 @@
 import { Request, Response } from "express"
 import { User } from "@entities/User";
 import { FollowUser } from "@entities/FollowUser";
-import { LoadStrategy, RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
+import { LoadStrategy } from "@mikro-orm/core";
 
 export const followUser = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const followId = parseInt(req.params.userId);
   
   const ifExists = await em.findOne(FollowUser, {
@@ -32,7 +31,7 @@ export const followUser = async (req: Request, res: Response) => {
 }
 
 export const getFollowersController = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
 
   const user = await em.findOneOrFail(User, {
     id: req.session.userId
@@ -49,7 +48,7 @@ export const getFollowersController = async (req: Request, res: Response) => {
 }
 
 export const getFollowingController = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   
   const user = await em.findOneOrFail(User, {
     id: req.session.userId

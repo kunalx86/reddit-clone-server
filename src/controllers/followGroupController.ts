@@ -1,12 +1,10 @@
 import { FollowGroup } from "@entities/FollowGroup";
 import { Group } from "@entities/Group";
 import { User } from "@entities/User";
-import { RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
 import { Request, Response } from "express";
 
 export const followGroup = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const groupId = parseInt(req.params.groupId);
 
   const group = await em.findOneOrFail(Group, {

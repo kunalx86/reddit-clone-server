@@ -4,8 +4,7 @@ import { Media, MediaType } from "@entities/Media";
 import { Post } from "@entities/Post";
 import { PostVote } from "@entities/PostVote";
 import { User } from "@entities/User";
-import { LoadStrategy, QueryFlag, QueryOrderMap, RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
+import { LoadStrategy, QueryFlag } from "@mikro-orm/core";
 import { PAGE_SIZE } from "@shared/constants";
 import { IPostCreateRequest, IVotePostRequest } from "@shared/types";
 import { generateOrderByClause } from "@utils/clauseGenerator";
@@ -13,7 +12,7 @@ import { errorVerifier, validatePost } from "@utils/postValidator";
 import { Response, Request } from "express";
 
 export const createPost = async (req: IPostCreateRequest, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   try {
     await validatePost(req.body);
   } catch(err) {
@@ -58,7 +57,7 @@ export const createPost = async (req: IPostCreateRequest, res: Response) => {
 * If different then set the new value
 */
 export const votePost = async (req: IVotePostRequest, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const postId = parseInt(req.params.postId);
   const vote = req.body.vote >= 1 && ! (req.body.vote < -1) ? 1 : -1;
   const post = await em.findOneOrFail(Post, {
@@ -103,7 +102,7 @@ export const votePost = async (req: IVotePostRequest, res: Response) => {
 }
 
 export const getPost = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const postId = parseInt(req.params.postId);
   const post = await em.findOneOrFail(Post, {
     id: postId,
@@ -133,7 +132,7 @@ export const getPost = async (req: Request, res: Response) => {
 * Example URL: /api/posts?page=2&sortBy=upvoted
 */
 export const getPosts = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const { page, sortBy } = req.query;
   const user = await em.findOne(User, {
     id: req.session.userId

@@ -3,7 +3,6 @@ import { userUpload } from "@controllers/multerController";
 import { getUserComments, getUser, getUserPosts } from "@controllers/usersController";
 import { UserProfile } from "@entities/UserProfile";
 import { verifyAuth } from "@middlewares/verifyAuth";
-import { RequestContext, EntityManager } from "@mikro-orm/core";
 import { Router } from "express";
 
 const router = Router();
@@ -25,7 +24,7 @@ router.route("/profile")
   name: 'bgProfilePicture',
   maxCount: 1
 }]), async (req, res) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const userProfile = await em.findOneOrFail(UserProfile, {
     user: req.session.userId
   });

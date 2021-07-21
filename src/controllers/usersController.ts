@@ -3,14 +3,13 @@ import { FollowGroup } from "@entities/FollowGroup";
 import { FollowUser } from "@entities/FollowUser";
 import { Post } from "@entities/Post";
 import { User } from "@entities/User";
-import { LoadStrategy, QueryFlag, RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
+import { LoadStrategy, QueryFlag } from "@mikro-orm/core";
 import { PAGE_SIZE } from "@shared/constants";
 import { Request, Response } from "express";
 
 
 export const getUser = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const username = req.params.username;
 
   const [ user, currUser ] = await Promise.all([
@@ -64,7 +63,7 @@ export const getUser = async (req: Request, res: Response) => {
 }
 
 export const getUserPosts = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const username = req.params.username;
   const { page } = req.query;
 
@@ -102,7 +101,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
 }
 
 export const getUserComments = async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const username = req.params.username;
 
   const [ user ] = await Promise.all([

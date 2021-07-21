@@ -4,7 +4,6 @@ import { verifyAuth } from "@middlewares/verifyAuth";
 import { Router } from "express";
 import { postCreatePermission } from "@middlewares/verifyGroupPermission";
 import { postUpload } from "@controllers/multerController";
-import { RequestContext, EntityManager } from "@mikro-orm/core";
 import { Post } from "@entities/Post";
 
 const router = Router();
@@ -19,7 +18,7 @@ router.route("/:postId/image")
     verifyImageUpload,
     postUpload.single("post"),
     async (req, res) => {
-      const em = RequestContext.getEntityManager() as EntityManager;
+      const { em } = req;
       const postId = parseInt(req.params.postId);
       const post = await em.findOneOrFail(Post, {
         id: postId

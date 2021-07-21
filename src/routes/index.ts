@@ -1,7 +1,6 @@
 import { User } from "@entities/User";
 import { verifyAuth } from "@middlewares/verifyAuth";
-import { LoadStrategy, RequestContext } from "@mikro-orm/core";
-import { EntityManager } from "@mikro-orm/postgresql";
+import { LoadStrategy } from "@mikro-orm/core";
 import { Request, Response, Router } from "express";
 import authRouter from "./authRouter";
 import groupsRouter from "./groupsRouter";
@@ -19,7 +18,7 @@ baseRouter.get('/', (_, res) => {
 })
 
 baseRouter.get('/whoami', verifyAuth, async (req: Request, res: Response) => {
-  const em = RequestContext.getEntityManager() as EntityManager;
+  const { em } = req;
   const user = await em.findOne(User, {
     id: req.session.userId || -1,
   }, {
