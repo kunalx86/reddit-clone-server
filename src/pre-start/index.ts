@@ -23,7 +23,12 @@ import commandLineArgs from 'command-line-args';
   const result2 = dotenv.config({
     path: path.join(__dirname, `env/${options.env}.env`),
   });
-  if (result2.error) {
-    throw result2.error;
+  // In case of Docker container, env will be provided at runtime
+  // Hence the check is put
+  // And if it is in production without Docker it would still work
+  if (!process.env.NODE_ENV) {
+    if (result2.error) {
+      throw result2.error;
+    }
   }
 })();
