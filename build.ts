@@ -20,7 +20,8 @@ logger.timestamp = false;
     // Copy production env file
     // Need to comment out because of docker situation
     // Move it manually if not using it
-    // await copy('./src/pre-start/env/production.env', './dist/pre-start/env/production.env');
+    if (!(process.env.DOCKER_ENV === 'yes'))
+      await copy('./src/pre-start/env/production.env', './dist/pre-start/env/production.env');
     // Copy back-end files
     await exec('tsc --build tsconfig.prod.json', './')
   } catch (err) {

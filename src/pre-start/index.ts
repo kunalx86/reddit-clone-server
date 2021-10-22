@@ -26,7 +26,7 @@ import commandLineArgs from 'command-line-args';
   // In case of Docker container, env will be provided at runtime
   // Hence the check is put
   // And if it is in production without Docker it would still work
-  if (!process.env.NODE_ENV) {
+  if (!(process.env.DOCKER_ENV === 'yes')) {
     if (result2.error) {
       throw result2.error;
     }
