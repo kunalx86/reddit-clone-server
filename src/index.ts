@@ -19,12 +19,15 @@ import { EntityManager } from '@mikro-orm/postgresql';
 (async () => {
 
   const orm = await MikroORM.init(mikroConfig);
-  // await orm.getMigrator().up();
+  await orm.getMigrator().up();
   const app = express();
   const { BAD_REQUEST } = StatusCodes;
 
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient();
+  const redisClient = redis.createClient({ 
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT || "6379")
+  });
 
   // /************************************************************************************
   //  *                              Set basic express settings

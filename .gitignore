@@ -6,6 +6,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+postgres_data/
+redis_data/
+
 # copy script
 copyenv.sh
 

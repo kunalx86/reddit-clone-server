@@ -9,7 +9,7 @@ export default {
   type: 'postgresql',
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  clientUrl: process.env.DB_URL,
+  host: process.env.DB_URL,
   entities, 
   migrations: {
     path: path.join(__dirname, './migrations'), // path to the folder with migrations
