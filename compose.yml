@@ -6,7 +6,7 @@ services:
     stdin_open: false
     ports:
       - 8081:8081
-    env_file: ./src/pre-start/env/production.env
+    env_file: ./env/production.docker.env
     depends_on:
       - db
       - redis

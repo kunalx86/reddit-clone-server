@@ -1,5 +1,5 @@
 # Stage one: building the application
-FROM node:17-buster
+FROM node:alpine as build
 
 WORKDIR /usr/src/app
 
@@ -16,7 +16,7 @@ ENV DOCKER_ENV=yes
 RUN yarn build
 
 # Stage two: Running the built code
-FROM node:14.17.0
+FROM node:alpine as run
 
 WORKDIR /usr/src/app
 
@@ -24,10 +24,19 @@ COPY package.json ./
 
 COPY yarn.lock ./
 
-RUN yarn --production
+# --no-cache: download package index on-the-fly, no need to cleanup afterwards
+# --virtual: bundle packages, remove whole bundle at once, when done
+RUN apk --no-cache --virtual build-dependencies add \
+    python3 \
+    make \
+    g++ \
+    && yarn --production \
+    && apk del build-dependencies
 
-RUN npx node-pre-gyp rebuild -C ./node_modules/argon2
+RUN npm install -g node-gyp
 
-COPY --from=0 /usr/src/app/dist ./dist
+RUN yarn add argon2
+
+COPY --from=build /usr/src/app/dist ./dist
 
 CMD [ "yarn", "start" ]
