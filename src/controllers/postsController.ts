@@ -10,14 +10,17 @@ import { IPostCreateRequest, IVotePostRequest } from "@shared/types";
 import { generateOrderByClause } from "@utils/clauseGenerator";
 import { errorVerifier, validatePost } from "@utils/postValidator";
 import { Response, Request } from "express";
+import { ValidationError } from "yup";
 
 export const createPost = async (req: IPostCreateRequest, res: Response) => {
   const { em } = req;
   try {
     await validatePost(req.body);
   } catch(err) {
-    const errors = errorVerifier(err);
-    return res.status(400).send({ errors });
+    if (err instanceof ValidationError) {
+      const errors = errorVerifier(err);
+      return res.status(400).send({ errors });
+    }
   }
   if (req.body.media.type !== MediaType.TEXT) {
     if (req.body.media.text) throw new Error("Cannot set text when media type is not text");
@@ -78,7 +81,7 @@ export const votePost = async (req: IVotePostRequest, res: Response) => {
     }
     else {
       postVote.vote = vote;
-      vote === 1 ? post.votesCount++ : post.votesCount--;
+      post.votesCount = vote === 1 ? post.votesCount + 2 : post.votesCount - 2;
       await em.persistAndFlush(postVote);
     }
     await em.persistAndFlush(post)

@@ -5,14 +5,17 @@ import { errorVerifier, registerValidator } from "@utils/registerValidator";
 import { User } from "@entities/User";
 import { UserProfile } from "@entities/UserProfile";
 import { FORBIDDEN_USERNAMES } from "@shared/constants";
+import { ValidationError } from "yup";
 
 export const registerUser = async (req: IUserRegisterRequest, res: Response) => {
   const { em } = req;
   try {
     await registerValidator(req.body);
   } catch(err) {
-    const errors = errorVerifier(err);
-    return res.status(400).send({errors});
+    if (err instanceof ValidationError) {
+      const errors = errorVerifier(err);
+      return res.status(400).send({errors});
+    }
   }
   const usernameUser = await em.findOne(User, {
     username: req.body.username

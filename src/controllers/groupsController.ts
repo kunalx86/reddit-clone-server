@@ -10,6 +10,7 @@ import { IGroupRequest, IRulesPostRequest } from "@shared/types";
 import { generateOrderByClause } from "@utils/clauseGenerator";
 import { errorVerifier, groupValidator } from "@utils/groupValidator";
 import { Response, Request } from "express";
+import { ValidationError } from "yup";
 
 export const createGroup = async (req: IGroupRequest, res: Response) => {
   const { em } = req;
@@ -17,8 +18,10 @@ export const createGroup = async (req: IGroupRequest, res: Response) => {
   try {
     await groupValidator(req.body);
   } catch(err) {
-    const errors = errorVerifier(err);
-    return res.status(400).send({errors});
+    if (err instanceof ValidationError) {
+      const errors = errorVerifier(err);
+      return res.status(400).send({errors});
+    }
   }
 
   const isGroup = await em.findOne(Group, {
